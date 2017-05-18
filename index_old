@@ -1,0 +1,79 @@
+/**
+ * Module dependencies.
+ */
+var express  = require('express');
+var logger   = require('morgan');
+var http     = require('http');
+var request  = require('request');
+var datetime = require('node-datetime');
+var fs       = require('fs');
+var app       = express();
+
+ // all environments
+app.set('port', (process.env.PORT || 5000));
+app.set('views', __dirname + '/views');
+app.set('view engine', 'ejs');
+app.engine('html', require('ejs').renderFile);
+app.use(function(req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  next();
+});
+request = request.defaults({jar: true});
+
+
+app.listen(app.get('port'), function() {
+  console.log('CRM Simulation running on port ', app.get('port'));
+});
+
+
+app.get('/', function(req, res, next) {
+  request.post(
+      'https://veriscanonline.com/Authorize',
+      { json: { UserName: 'mjrharrison001@gmail.com', Password: '5e1443c1' } },
+      function (error, response, body) {
+          if (!error && response.statusCode == 200) {
+              console.log(response.statusCode);
+              //console.log(response.headers);
+          }
+      }
+  );
+  console.log('***************************');
+  //var currentTime = datetime.create();
+  var pastTime = '2016-01-01 00:00:00';
+  var currentTime = '2016-05-19 00:00:00';
+  var link = 'https://veriscanonline.com/Export/History?from=' +
+  pastTime + '&to=' + currentTime;
+  console.log(link);
+  var cookieJar = request.jar();
+  // request.post(
+  //     link,
+  //     { json: { UserName: 'mjrharrison001@gmail.com', Password: '5e1443c1' } },
+  //     function (error, response, body) {
+  //         if (!error && response.statusCode == 200) {
+  //             console.log(response.statusCode);
+  //         }
+  //         console.log(response.statusCode);
+  //         res.send(body);
+  //     }
+  // ).pipe(fs.createWriteStream('test.txt'));
+
+  request.post({
+      url: link,
+      form: {"UserName":"mjrharrison001@gmail.com", "Password":"5e1443c1"}
+  }, function(error, response, body){
+      console.log(response.body);
+      var link2 = 'https://veriscanonline.com/Login.aspx?ReturnUrl=%2fExport%2fHistory%3ffrom%3d2016-01-01%252000%3a00%3a00%26to%3d2016-05-19%252000%3a00%3a00&from=2016-01-01+00%3a00%3a00&to=2016-05-19+00%3a00%3a00';
+      request.get({
+          url: link2,
+          header: response.headers
+      },function(error, response, body){
+
+          // The full html of the authenticated page
+          //console.log(body);
+          console.log(response.statusCode);
+          res.send(body);
+      });
+  });
+  //res.send("Hello World");
+});
