@@ -40,9 +40,17 @@ var interval = 15; //15 second interval
 //updateScans();
 setInterval(updateScans, interval * 1000);
 
-app.get('/', function(req, res, next) {
+app.get('/users', function(req, res, next) {
   res.setHeader('Content-Type', 'application/json');
   res.send(JSON.stringify(CRM_scans));
+});
+
+app.get('/users/lastUpdated', function(req, res, next) {
+  res.setHeader('Content-Type', 'application/json');
+  var date = {
+    'date': lastValidDate
+  };
+  res.send(JSON.stringify(date));
 });
 
 function updateScans (){
@@ -102,10 +110,11 @@ function updateScans (){
         console.log("Demeon tock FAILED. Last");
       }
       var token = body.HistoryItems;
-      while (token.length > CRM_scans.length)
-      {
+      if(typeof token != 'undefined')
         token.sort(compare);
-        CRM_scans.push(token[token.length - 1]);
+
+      for (var i = (token.length - CRM_scans.length) -1; i >= 0 ; i--){
+        CRM_scans.push(token[token.length - i - 1]);
       }
     });
   });
