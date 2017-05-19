@@ -82,7 +82,7 @@ function updateScans (){
     var headers = res.headers;
     var statusCode = res.statusCode;
     var pastTime = '2017-01-01 00:00:00';     //dynamically set dates
-    var currentTime = '2017-05-25 00:00:00';  //dynamically set dates
+    var currentTime = '2017-05-31 00:00:00';  //dynamically set dates
     var link = 'https://veriscanonline.com/Export/History?from=' +
     pastTime + '&to=' + currentTime;
     var options = {
